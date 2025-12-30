@@ -18,7 +18,7 @@ y = df['Status']
 
 # train-test split
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=42, stratify=y
+    X, y, test_size=0.6, random_state=42, stratify=y
 )
 
 X_train_scaled, X_test_scaled = scale_features(X_train, X_test)
@@ -37,3 +37,16 @@ accuracy, cm = evaluate(knn, X_test_lda, y_test)
 
 print("LDA + KNN Accuracy:", accuracy)
 print("Confusion Matrix:\n", cm)
+
+def lda_y_score():
+    y_score_lda = knn.predict_proba(X_test_lda)[:, 1]
+    return y_score_lda,y_test
+
+
+
+"""
+LDA + KNN Accuracy: 0.8857615894039735
+Confusion Matrix:
+ [[982  41]
+ [ 97  88]]
+ """
