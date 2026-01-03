@@ -7,41 +7,50 @@ from src.evaluation import evaluate
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from src.preprocessing import scale_features
 from src.model import train_knn_class
+from src.data_loader import get_data_split
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
 
-df = pd.read_csv("data/processed_data.csv")
+def LDA():
+    X_train, X_test, y_train, y_test = get_data_split()
 
-X = df.drop('Status', axis=1)
-y = df['Status']
+    X_train_scaled, X_test_scaled = scale_features(X_train, X_test)
 
-# train-test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.6, random_state=42, stratify=y
-)
+    # LDA
+    #X_train_lda, X_test_lda, lda = apply_lda(X_train_scaled, X_test_scaled, y_train)
+    lda = LinearDiscriminantAnalysis()
+    X_train_lda = lda.fit_transform(X_train_scaled, y_train)
+    X_test_lda = lda.transform(X_test_scaled)
 
-X_train_scaled, X_test_scaled = scale_features(X_train, X_test)
+    # KNN
+    knn = train_knn_class(X_train_lda, y_train, k=5)
 
-# LDA
-#X_train_lda, X_test_lda, lda = apply_lda(X_train_scaled, X_test_scaled, y_train)
-lda = LinearDiscriminantAnalysis()
-X_train_lda = lda.fit_transform(X_train_scaled, y_train)
-X_test_lda = lda.transform(X_test_scaled)
+    # evaluation
+    accuracy, cm, precision__score, recall__score ,f1__score = evaluate(knn, X_test_lda, y_test)
 
-# KNN
-knn = train_knn_class(X_train_lda, y_train, k=5)
+    print("LDA + KNN Accuracy:", accuracy)
+    print("Confusion Matrix:\n", cm)
+    print("precision_score", precision__score)
+    print("recall_score", recall__score)
+    print("f1_score at", f1__score)
 
-# evaluation
-accuracy, cm = evaluate(knn, X_test_lda, y_test)
 
-print("LDA + KNN Accuracy:", accuracy)
-print("Confusion Matrix:\n", cm)
+
 
 def lda_y_score():
+
+    X_train, X_test, y_train, y_test = get_data_split()
+    X_train_scaled, X_test_scaled = scale_features(X_train, X_test)
+
+    lda = LinearDiscriminantAnalysis()
+    X_train_lda = lda.fit_transform(X_train_scaled, y_train)
+    X_test_lda = lda.transform(X_test_scaled)
+
+    knn = train_knn_class(X_train_lda, y_train, k=5)
     y_score_lda = knn.predict_proba(X_test_lda)[:, 1]
     return y_score_lda,y_test
 
+if __name__=="__main__":
+    LDA()
 
 
 """
@@ -49,4 +58,7 @@ LDA + KNN Accuracy: 0.8857615894039735
 Confusion Matrix:
  [[982  41]
  [ 97  88]]
+precision_score 0.6821705426356589
+recall_score 0.4756756756756757
+f1_score at 0.5605095541401274
  """

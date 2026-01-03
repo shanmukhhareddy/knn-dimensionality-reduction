@@ -6,21 +6,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.evaluation import evaluate
 from src.preprocessing import scale_features
 from src.model import train_knn_class
+from src.data_loader import get_data_split
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-# load data
-df = pd.read_csv("data/processed_data.csv")
 
-X = df.drop("Status", axis=1)
-y = df["Status"]
 
 # train-test split
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=42, stratify=y
-)
-
+X_train, X_test, y_train, y_test = get_data_split()
 # scaling
 X_train_scaled, X_test_scaled = scale_features(X_train, X_test)
 
@@ -64,9 +57,10 @@ plt.ylabel("metrices")
 plt.title("Accuracy vs Number of Dimensions")
 plt.legend()
 plt.show()
+plt.close()
 
 
-"""
+'''
 Metrices at k= 3
 Baseline KNN Accuracy: 0.8485099337748344
 Confusion Matrix:
@@ -94,6 +88,15 @@ Precision: 0.5573770491803278
 recall: 0.1837837837837838
 F1-score: 0.2764227642276423
 
+Metrices at k= 11
+Baseline KNN Accuracy: 0.859271523178808
+Confusion Matrix:
+ [[1014    9]
+ [ 161   24]]
+Precision: 0.7272727272727273
+recall: 0.12972972972972974
+F1-score: 0.22018348623853212
+
 Metrices at k= 15
 Baseline KNN Accuracy: 0.8584437086092715
 Confusion Matrix:
@@ -102,4 +105,4 @@ Confusion Matrix:
 Precision: 0.7333333333333333
 recall: 0.11891891891891893
 F1-score: 0.20465116279069767
-"""
+'''
